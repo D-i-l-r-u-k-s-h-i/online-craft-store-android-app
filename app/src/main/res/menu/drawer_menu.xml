@@ -2,8 +2,8 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     tools:showIn="navigation_view">
-
-    <group android:checkableBehavior="single"> //can collect only one and the selected will remain selected
+    <!--//can collect only one and the selected will remain selected-->
+    <group android:checkableBehavior="single">
         <item
             android:id="@+id/nav_home"
             android:icon="@drawable/ic_home_24dp"
@@ -17,10 +17,10 @@
             android:id="@+id/nav_past_orders"
             android:icon="@drawable/ic_past_orders_24dp"
             android:title="Past Orders" />
-        <!--<item-->
-            <!--android:id="@+id/nav_contactus"-->
-            <!--android:icon="@drawable/ic_phone_24px"-->
-            <!--android:title="Contact Us" />-->
+        <item
+            android:id="@+id/nav_dashboard"
+            android:icon="@drawable/ic_dashboard"
+            android:title="Dashboard" />
     </group>
 
     <item android:title="Communicate">

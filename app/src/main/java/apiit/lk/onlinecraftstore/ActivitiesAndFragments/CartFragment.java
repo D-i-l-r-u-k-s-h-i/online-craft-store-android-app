@@ -1,4 +1,4 @@
-package apiit.lk.onlinecraftstore.SupportClasses;
+package apiit.lk.onlinecraftstore.ActivitiesAndFragments;
 
 import android.content.Context;
 import android.os.Bundle;

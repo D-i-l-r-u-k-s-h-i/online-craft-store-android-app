@@ -1,7 +1,6 @@
 package apiit.lk.onlinecraftstore.Adapters;
 
 import android.content.Context;
-import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.RecyclerView;
@@ -15,7 +14,6 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 import apiit.lk.onlinecraftstore.R;
-import apiit.lk.onlinecraftstore.SupportClasses.CartFragment;
 
 public class CartItems_RecyclerViewAdapter extends RecyclerView.Adapter<CartItems_RecyclerViewAdapter.ViewHolder>{
 

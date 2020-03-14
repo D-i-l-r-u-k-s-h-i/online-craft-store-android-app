@@ -1,4 +1,4 @@
-package apiit.lk.onlinecraftstore.SupportClasses;
+package apiit.lk.onlinecraftstore.ActivitiesAndFragments;
 
 import android.content.Intent;
 import android.support.annotation.NonNull;
@@ -65,6 +65,11 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
             case R.id.nav_past_orders:
                 FragmentTransaction ft3=clearBackStack();
                 ft3.replace(R.id.fragment_container,new PastOrdersFragment(),"pastorders").addToBackStack(null).commit();
+                break;
+            case R.id.nav_dashboard:
+                FragmentTransaction ft4=clearBackStack();
+                //admin dashboard only for now, later check the role in shared preference and direct respectively
+                ft4.replace(R.id.fragment_container,new AdminDashboardFragment(),"dashboard").addToBackStack(null).commit();
                 break;
             case R.id.nav_logout:
                 //clear shared preference

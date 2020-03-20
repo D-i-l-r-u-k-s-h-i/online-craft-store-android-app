@@ -1,5 +1,6 @@
 package apiit.lk.onlinecraftstore.ActivitiesAndFragments;
 
+import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -11,16 +12,34 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import apiit.lk.onlinecraftstore.DTOs.CraftItem;
+import apiit.lk.onlinecraftstore.DTOs.ItemDTO;
+import apiit.lk.onlinecraftstore.DTOs.OrderDTO;
+import apiit.lk.onlinecraftstore.JsonPlaceholderAPIs.OrderApis;
 import apiit.lk.onlinecraftstore.R;
+import apiit.lk.onlinecraftstore.SupportClasses.ApiClient;
+import apiit.lk.onlinecraftstore.SupportClasses.BuyItemDialog;
+import apiit.lk.onlinecraftstore.SupportClasses.SaveSharedPreferenceInstance;
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
-public class HomeActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
+public class HomeActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener ,BuyItemDialog.BuyItemDialogListener{
 
     private DrawerLayout drawer;
+    private OrderApis orderApis;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +55,14 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         toggle.syncState();
 
         NavigationView navigationView = findViewById(R.id.nav_view);
+
+        String userRole=SaveSharedPreferenceInstance.getRole(this);
+
+        if(!userRole.equals("ROLE_CRAFT_CREATOR")){
+            Menu nav_Menu = navigationView.getMenu();
+            nav_Menu.findItem(R.id.nav_dashboard).setVisible(false);
+        }
+
         navigationView.setNavigationItemSelectedListener(this);
 
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,new HomeFragment()).commit();
@@ -67,13 +94,20 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                 ft3.replace(R.id.fragment_container,new PastOrdersFragment(),"pastorders").addToBackStack(null).commit();
                 break;
             case R.id.nav_dashboard:
-                FragmentTransaction ft4=clearBackStack();
-                //admin dashboard only for now, later check the role in shared preference and direct respectively
-                ft4.replace(R.id.fragment_container,new AdminDashboardFragment(),"dashboard").addToBackStack(null).commit();
+                String userRole=SaveSharedPreferenceInstance.getRole(this);
+
+                if (userRole.equals("ROLE_CRAFT_CREATOR")) {
+
+                    FragmentTransaction ft4=clearBackStack();
+                    //admin dashboard only for now, later check the role in shared preference and direct respectively
+                    ft4.replace(R.id.fragment_container,new CreatorDashboardFragment(),"dashboard").addToBackStack(null).commit();
+
+                }
                 break;
+
             case R.id.nav_logout:
                 //clear shared preference
-//                SaveSharedPreferenceInstance.clearUser(this);
+                SaveSharedPreferenceInstance.clearUser(this);
                 startActivity(new Intent(HomeActivity.this,LoginActivity.class));
                 Toast.makeText(this,"Signed out.",Toast.LENGTH_SHORT).show();
                 finish();
@@ -107,5 +141,47 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
             }
         }
         return ft;
+    }
+
+    @Override
+    public void passData(int quantity, ItemDTO itemAtCurrentPosition) {
+
+        OrderDTO orderDTO=new OrderDTO();
+        orderDTO.setCraftId(itemAtCurrentPosition.getCraftId());
+        orderDTO.setQuantity(quantity);
+
+        orderApis= ApiClient.getClient().create(OrderApis.class);
+
+        Map<String,String> headers=new HashMap<>();
+        headers.put("Authorization","Bearer "+ SaveSharedPreferenceInstance.getAuthToken(this));
+        headers.put("content-type", "application/json");
+
+        Call<ResponseBody> call=orderApis.buyItem(headers,orderDTO);
+
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if(!response.isSuccessful()){
+                    Log.d("responseCode", String.valueOf(response.code()));
+                    return;
+                }
+
+                try {
+                    showToast(""+response.body().string()+" of "+itemAtCurrentPosition.getCiName()+"-"+ itemAtCurrentPosition.getCiPrice()*quantity,getApplicationContext());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Log.d("failed",t.getMessage());
+            }
+        });
+
+    }
+
+    public void showToast(String message,Context context){
+        Toast.makeText(context, message,Toast.LENGTH_LONG).show();
     }
 }

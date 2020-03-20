@@ -13,15 +13,17 @@
         android:theme="@style/AppTheme"
         android:networkSecurityConfig="@xml/network_security_config">
 
-        <activity android:name=".ActivitiesAndFragments.SplashActivity">
+        <activity android:name=".ActivitiesAndFragments.SplashActivity"
+            android:theme="@style/AppTheme.Launcher">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-         <activity android:name=".ActivitiesAndFragments.HomeActivity" android:theme="@style/AppTheme.NoActionBar"
-         android:windowSoftInputMode="adjustPan"/>
+         <activity android:name=".ActivitiesAndFragments.HomeActivity"
+             android:theme="@style/AppTheme.NoActionBar"
+             android:windowSoftInputMode="adjustPan"/>
         <activity android:name=".ActivitiesAndFragments.LoginActivity" />
         <activity
             android:name=".ActivitiesAndFragments.RegistrationActivity"

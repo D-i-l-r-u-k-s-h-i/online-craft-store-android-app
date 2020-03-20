@@ -8,13 +8,13 @@ public class SaveSharedPreferenceInstance {
     static final String SP_USER="username";
     static final String SP_ROLE="role";
     static final String SP_USER_ID="userId";
-//    static final String SP_EMAIL="email";
+    static final String AUTH_TOKEN="token";
 
     //pass the instance of context (Activity or fragment) which uses it
     static SharedPreferences getSharedPreferences(Context ctx) {
         return PreferenceManager.getDefaultSharedPreferences(ctx);
     }
-    //set value, user-email at the creation of the sharedpreference
+    //set value, username at the creation of the sharedpreference
     public static void setUsername(Context ctx, String uname)
     {
         SharedPreferences.Editor editor = getSharedPreferences(ctx).edit();
@@ -39,18 +39,6 @@ public class SaveSharedPreferenceInstance {
         return getSharedPreferences(ctx).getString(SP_ROLE, "");
     }
 
-//    public static void setEmail(Context ctx, String email)
-//    {
-//        SharedPreferences.Editor editor = getSharedPreferences(ctx).edit();
-//        editor.putString(SP_EMAIL, email);
-//        editor.commit();
-//    }
-//    //retrieve values passed at the creation of shared preference
-//    public static String getEmail(Context ctx)
-//    {
-//        return getSharedPreferences(ctx).getString(SP_EMAIL, "");
-//    }
-
     public static void setUserId(Context ctx, String uId)
     {
         SharedPreferences.Editor editor = getSharedPreferences(ctx).edit();
@@ -61,6 +49,19 @@ public class SaveSharedPreferenceInstance {
     public static String getUserId(Context ctx)
     {
         return getSharedPreferences(ctx).getString(SP_USER_ID, "");
+    }
+
+    //set value, username at the creation of the sharedpreference
+    public static void setAuthToken(Context ctx, String token)
+    {
+        SharedPreferences.Editor editor = getSharedPreferences(ctx).edit();
+        editor.putString(AUTH_TOKEN, token);
+        editor.commit();
+    }
+    //retrieve values passed at the creation of shared preference
+    public static String getAuthToken(Context ctx)
+    {
+        return getSharedPreferences(ctx).getString(AUTH_TOKEN, "");
     }
 
     //clear shared preference for logout

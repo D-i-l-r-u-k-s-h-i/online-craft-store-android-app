@@ -14,6 +14,7 @@ import apiit.lk.onlinecraftstore.DTOs.JwtAuthenticationResponse;
 import apiit.lk.onlinecraftstore.DTOs.LoginRequest;
 import apiit.lk.onlinecraftstore.JsonPlaceholderAPIs.AuthApis;
 import apiit.lk.onlinecraftstore.R;
+import apiit.lk.onlinecraftstore.SupportClasses.ApiClient;
 import apiit.lk.onlinecraftstore.SupportClasses.DecodeToken;
 import apiit.lk.onlinecraftstore.SupportClasses.SaveSharedPreferenceInstance;
 import retrofit2.Call;
@@ -36,18 +37,12 @@ public class LoginActivity extends AppCompatActivity {
         this.name_et=findViewById(R.id.usernameET);
         this.password_et=findViewById(R.id.passwordET);
 
-        Retrofit retrofit=new Retrofit.Builder()
-                .baseUrl("http://10.0.2.2:8080/auth/")
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-
-        authApis=retrofit.create(AuthApis.class);
+        authApis= ApiClient.getClient().create(AuthApis.class);
     }
 
     //onClickSignUp Text view
     public void signup_onClick(View view) {
         startActivity(new Intent(LoginActivity.this,RegistrationActivity.class));
-//        finish();
     }
 
 
@@ -86,12 +81,11 @@ public class LoginActivity extends AppCompatActivity {
                     String role=roleObj.getString("roleName");
 
                     String userId=jsonObject.getString("userId");
-//                    String email=jsonObject.getString("email");
 
                     SaveSharedPreferenceInstance.setUsername(getApplicationContext(),user);
                     SaveSharedPreferenceInstance.setRole(getApplicationContext(),role);
-//                    SaveSharedPreferenceInstance.setEmail(getApplicationContext(),email);
                     SaveSharedPreferenceInstance.setUserId(getApplicationContext(), userId);
+                    SaveSharedPreferenceInstance.setAuthToken(getApplicationContext(),accessToken);
 
                     startActivity(new Intent(LoginActivity.this,HomeActivity.class));
                     finish();
@@ -109,7 +103,5 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-//        startActivity(new Intent(LoginActivity.this,HomeActivity.class));
-//        finish();
     }
 }

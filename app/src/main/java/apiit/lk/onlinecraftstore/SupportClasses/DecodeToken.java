@@ -13,7 +13,7 @@ public class DecodeToken {
             split = JWTEncoded.split("\\.");
             Log.d("JWT_DECODED", "Header: " + getJson(split[0]));
             Log.d("JWT_DECODED", "Body: " + getJson(split[1]));
-            Log.d("JWT_DECODED", "Signiture: " + getJson(split[2]));
+            Log.d("JWT_DECODED", "Signature: " + getJson(split[2]));
         } catch (UnsupportedEncodingException e) {
             //Error
         }

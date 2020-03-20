@@ -17,14 +17,15 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:gravity="center"
+            android:gravity="left"
             android:orientation="vertical"
             android:padding="16dp">
 
             <ImageView
                 android:id="@+id/mImageIV"
-                android:layout_width="125dp"
-                android:layout_height="125dp" />
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal" />
 
             <TextView
                 android:id="@+id/craftNameTV"
@@ -32,26 +33,30 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
                 android:text="CraftName"
-                android:textColor="@color/colorTheme"
+                android:textColor="@color/colorBlueDark"
                 android:textSize="18sp" />
 
             <TextView
                 android:id="@+id/creatorTV"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Creator" />
+                android:gravity="right|end"
+                android:text="Creator"
+                android:textColor="@android:color/holo_orange_dark" />
 
             <TextView
                 android:id="@+id/availabilityTV"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="availability" />
+                android:text="availability"
+                android:textColor="@android:color/holo_blue_dark" />
 
             <TextView
                 android:id="@+id/shortDescriptionTV"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Short Description"
+                android:textColor="@color/colorTheme"
                 android:textSize="16sp" />
 
             <TextView
@@ -64,12 +69,15 @@
                 android:id="@+id/priceTV"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
                 android:text="Price"
+                android:textColor="@color/colorBlack"
                 android:textSize="16sp" />
 
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:gravity="center"
                 android:orientation="horizontal">
 
                 <ImageView
@@ -94,6 +102,7 @@
                     android:layout_width="43dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
+                    android:visibility="gone"
                     app:srcCompat="@drawable/ic_delete_24dp" />
 
                 <ImageView
@@ -101,6 +110,7 @@
                     android:layout_width="39dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
+                    android:visibility="gone"
                     app:srcCompat="@drawable/ic_edit_24dp" />
 
             </LinearLayout>

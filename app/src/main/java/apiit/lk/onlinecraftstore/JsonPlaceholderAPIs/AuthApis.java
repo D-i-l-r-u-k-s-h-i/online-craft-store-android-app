@@ -10,10 +10,10 @@ import retrofit2.http.POST;
 
 public interface AuthApis {
 
-    @POST("login")
+    @POST("auth/login")
     Call<JwtAuthenticationResponse> signInUser(@Body LoginRequest loginRequest);
 
-    @POST("register")
+    @POST("auth/register")
     Call<ResponseBody> registerUser(@Body UserDTO dto);
 
 }

@@ -16,6 +16,7 @@ import java.io.IOException;
 import apiit.lk.onlinecraftstore.DTOs.UserDTO;
 import apiit.lk.onlinecraftstore.JsonPlaceholderAPIs.AuthApis;
 import apiit.lk.onlinecraftstore.R;
+import apiit.lk.onlinecraftstore.SupportClasses.ApiClient;
 import apiit.lk.onlinecraftstore.SupportClasses.SaveSharedPreferenceInstance;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -48,12 +49,7 @@ public class RegistrationActivity extends AppCompatActivity {
         this.confirmpass_et=findViewById(R.id.confirmPassET);
         this.radioGroup=findViewById(R.id.radioGroup);
 
-        Retrofit retrofit=new Retrofit.Builder()
-                .baseUrl("http://10.0.2.2:8080/auth/")
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-
-        authApis=retrofit.create(AuthApis.class);
+        authApis= ApiClient.getClient().create(AuthApis.class);
     }
 
     public void signupBtn_onClick(View view) {

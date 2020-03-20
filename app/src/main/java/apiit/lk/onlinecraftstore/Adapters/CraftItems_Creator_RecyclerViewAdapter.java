@@ -1,7 +1,6 @@
 package apiit.lk.onlinecraftstore.Adapters;
 
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -22,7 +21,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import apiit.lk.onlinecraftstore.ActivitiesAndFragments.CreatorDashboardFragment;
 import apiit.lk.onlinecraftstore.ActivitiesAndFragments.HomeActivity;
 import apiit.lk.onlinecraftstore.DTOs.ItemDTO;
 import apiit.lk.onlinecraftstore.JsonPlaceholderAPIs.OrderApis;
@@ -35,47 +33,37 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-
-public class CraftItems_RecyclerViewAdapter extends RecyclerView.Adapter<CraftItems_RecyclerViewAdapter.ViewHolder>/* implements BuyItemDialog.BuyItemDialogListener*/{
+public class CraftItems_Creator_RecyclerViewAdapter extends RecyclerView.Adapter<CraftItems_Creator_RecyclerViewAdapter.ViewHolder>{
 
     private List<ItemDTO> mData;
     private LayoutInflater mInflater;
-    private ItemClickListener mClickListener;
-    private final Context mContext;
+    private CraftItems_RecyclerViewAdapter.ItemClickListener mClickListener;
+    private Context mContext;
 
     private OrderApis orderApis;
 
     ItemDTO itemAtCurrentPosition;
 
-    // data is passed into the constructor
-    public CraftItems_RecyclerViewAdapter(Context context, List<ItemDTO> data) {
+    public CraftItems_Creator_RecyclerViewAdapter(Context context, List<ItemDTO> data) {
         this.mContext=context;
         this.mInflater = LayoutInflater.from(context);
         this.mData = data;
     }
+
     // inflates the cell layout from xml when needed
     @Override
     @NonNull
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public CraftItems_Creator_RecyclerViewAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = mInflater.inflate(R.layout.craft_items_rv, parent, false);
-        return new ViewHolder(view);
+        return new CraftItems_Creator_RecyclerViewAdapter.ViewHolder(view);
     }
     // binds the data to the TextView in each cell
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull CraftItems_Creator_RecyclerViewAdapter.ViewHolder holder, int position) {
 
+        holder.creator_tv.setVisibility(View.GONE);
         holder.craftName_tv.setText(mData.get(position).getCiName());
-
-        String currentUserName=SaveSharedPreferenceInstance.getUsername(mContext);
-        if(currentUserName.equals(mData.get(position).getCreator().getCreatorName())){
-            holder.creator_tv.setVisibility(View.GONE);
-            holder.addToCart_iv.setEnabled(false);
-            holder.buy_btn.setEnabled(false);
-        }
-        else {
-            holder.creator_tv.setText("Creator: "+mData.get(position).getCreator().getCreatorName());
-        }
-
+        holder.creator_tv.setText("Creator: "+mData.get(position).getCreator().getCreatorName());
         holder.shortDiscription_tv.setText(mData.get(position).getShortDescription());
         holder.longDiscription_tv.setText(mData.get(position).getLongDescription());
         holder.price_tv.setText("Rs."+mData.get(position).getCiPrice().toString());
@@ -135,18 +123,6 @@ public class CraftItems_RecyclerViewAdapter extends RecyclerView.Adapter<CraftIt
             @Override
             public void onClick(View v) {
                 //direct user to creator profile activity
-                Bundle bundle = new Bundle();
-                bundle.putLong("id",mData.get(position).getCreator().getCreatorId());
-                bundle.putDouble("rating",mData.get(position).getCreator().getOverallRating());
-
-                CreatorDashboardFragment fragment=new CreatorDashboardFragment();
-                fragment.setArguments(bundle);
-
-                ((HomeActivity) mContext).getSupportFragmentManager()
-                        .beginTransaction()
-                        .replace(R.id.fragment_container, fragment)
-                        .commit();
-
             }
         });
 
@@ -191,6 +167,16 @@ public class CraftItems_RecyclerViewAdapter extends RecyclerView.Adapter<CraftIt
             delete_iv=itemView.findViewById(R.id.deleteBtn);
             buy_btn=itemView.findViewById(R.id.buyBtn);
 
+            String currentUserRole=SaveSharedPreferenceInstance.getRole(mContext);
+            String currentUserName=SaveSharedPreferenceInstance.getUsername(mContext);
+
+            if(currentUserRole.equals("ROLE_CRAFT_CREATOR")){
+                edit_iv.setVisibility(View.VISIBLE);
+                delete_iv.setVisibility(View.VISIBLE);
+                buy_btn.setVisibility(View.GONE);
+                addToCart_iv.setVisibility(View.GONE);
+            }
+
 
             itemView.setOnClickListener(this);
         }
@@ -206,7 +192,7 @@ public class CraftItems_RecyclerViewAdapter extends RecyclerView.Adapter<CraftIt
     }
 
     // allows clicks events to be caught
-    public void setClickListener(ItemClickListener itemClickListener) {
+    public void setClickListener(CraftItems_RecyclerViewAdapter.ItemClickListener itemClickListener) {
         this.mClickListener = itemClickListener;
     }
 
@@ -229,6 +215,4 @@ public class CraftItems_RecyclerViewAdapter extends RecyclerView.Adapter<CraftIt
         buyItemDialog.show(((HomeActivity) mContext).getSupportFragmentManager(),"buy item dialog");
         notifyDataSetChanged();
     }
-
 }
-

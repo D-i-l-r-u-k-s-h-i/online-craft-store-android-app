@@ -2,9 +2,12 @@ package apiit.lk.onlinecraftstore.Adapters;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.RecyclerView;
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,27 +15,22 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.List;
 
+import apiit.lk.onlinecraftstore.DTOs.ReviewDTO;
 import apiit.lk.onlinecraftstore.R;
 
 public class ShowReviews_RecyclerViewAdapter extends RecyclerView.Adapter<ShowReviews_RecyclerViewAdapter.
         ViewHolder>{
-    private ArrayList<String> craft_names;
-    private ArrayList<String> review_descriptiolnss;
-    private ArrayList<String> usernames;
-    private ArrayList<String> images;
+    private List<ReviewDTO> mData;
 
 //    private ArrayList<Product> productArrayList;
 
     private Context mContext;
 
-    public ShowReviews_RecyclerViewAdapter(/*ArrayList<String> usernames,*/ ArrayList<String> review_descriptiolnss,
-                                            ArrayList<String> images,ArrayList<String> craft_names, Context mContext){
-//        this.usernames = usernames;
-        this.review_descriptiolnss = review_descriptiolnss;
-        this.images = images;
+    public ShowReviews_RecyclerViewAdapter(List<ReviewDTO> reviewDTO, Context mContext){
         this.mContext = mContext;
-        this.craft_names=craft_names;
+        this.mData= reviewDTO;
     }
 
     @NonNull
@@ -48,18 +46,20 @@ public class ShowReviews_RecyclerViewAdapter extends RecyclerView.Adapter<ShowRe
     @Override
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, final int position) {
         //this is where retrieving of information happens from a db and show them on the view
-        viewHolder.craft_name_tv.setText(craft_names.get(position));
-        viewHolder.review_description_tv.setText(review_descriptiolnss.get(position));
-//        viewHolder.timestamp_tv.setText(prices.get(position));
-        //load the image using picaso here.
-//        Picasso.get().load(images.get(position)).into(viewHolder.productImage);
+        viewHolder.craft_name_tv.setText(mData.get(position).getCraftItem().getCiName());
+        viewHolder.review_description_tv.setText(mData.get(position).getReviewDescription()+" -"+mData.get(position).getUser().getUsername()+"-");
+        viewHolder.timestamp_tv.setText(mData.get(position).getDate());
 
+        byte[] decodedString = Base64.decode(mData.get(position).getCraftItem().getImgFile() , Base64.DEFAULT);
+        Bitmap decodedByte= BitmapFactory.decodeByteArray(decodedString,0,decodedString.length);
+
+        viewHolder.craftImage.setImageBitmap(decodedByte);
 
     }
 
     @Override
     public int getItemCount() {
-        return review_descriptiolnss.size();
+        return mData.size();
     }
 
 

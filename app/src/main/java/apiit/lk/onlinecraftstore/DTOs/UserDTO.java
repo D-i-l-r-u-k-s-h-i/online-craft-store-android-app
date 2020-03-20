@@ -11,7 +11,7 @@ public class UserDTO {
 
     private String email;
 
-    private long roleId;
+    private Long roleId;
 
     private String userType;
 
@@ -69,11 +69,11 @@ public class UserDTO {
         this.email = email;
     }
 
-    public long getRoleId() {
+    public Long getRoleId() {
         return roleId;
     }
 
-    public void setRoleId(long roleId) {
+    public void setRoleId(Long roleId) {
         this.roleId = roleId;
     }
 

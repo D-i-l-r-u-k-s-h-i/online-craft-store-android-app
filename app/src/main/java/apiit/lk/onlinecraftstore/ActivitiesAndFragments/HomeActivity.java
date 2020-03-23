@@ -26,20 +26,25 @@ import java.util.Map;
 import apiit.lk.onlinecraftstore.DTOs.CraftItem;
 import apiit.lk.onlinecraftstore.DTOs.ItemDTO;
 import apiit.lk.onlinecraftstore.DTOs.OrderDTO;
+import apiit.lk.onlinecraftstore.JsonPlaceholderAPIs.CraftItemApis;
 import apiit.lk.onlinecraftstore.JsonPlaceholderAPIs.OrderApis;
 import apiit.lk.onlinecraftstore.R;
+import apiit.lk.onlinecraftstore.SupportClasses.AddCraftDialog;
 import apiit.lk.onlinecraftstore.SupportClasses.ApiClient;
 import apiit.lk.onlinecraftstore.SupportClasses.BuyItemDialog;
 import apiit.lk.onlinecraftstore.SupportClasses.SaveSharedPreferenceInstance;
+import apiit.lk.onlinecraftstore.SupportClasses.UpdateCraftDialog;
+import okhttp3.MultipartBody;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class HomeActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener ,BuyItemDialog.BuyItemDialogListener{
+public class HomeActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener ,BuyItemDialog.BuyItemDialogListener,UpdateCraftDialog.UpdateItemDialogListener,AddCraftDialog.AddItemDialogListener{
 
     private DrawerLayout drawer;
     private OrderApis orderApis;
+    private CraftItemApis craftItemApis;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -183,5 +188,81 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
 
     public void showToast(String message,Context context){
         Toast.makeText(context, message,Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void passData(ItemDTO updatedDto, MultipartBody imgF) {
+        craftItemApis=ApiClient.getClient().create(CraftItemApis.class);
+
+        Map<String,String> headers=new HashMap<>();
+        headers.put("Authorization","Bearer "+ SaveSharedPreferenceInstance.getAuthToken(this));
+        headers.put("content-type", "multipart/form-data; boundary="+imgF.boundary());
+
+        Call<ResponseBody> call=craftItemApis.updateItem(headers,imgF,updatedDto.getCraftId(),
+                updatedDto.getCiName(),updatedDto.getCiPrice(),updatedDto.getItemQuantity(),updatedDto.getShortDescription(),
+                updatedDto.getLongDescription(),updatedDto.getType(),updatedDto.getCategory(),updatedDto.getAvailabilityStatus());
+
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if(!response.isSuccessful()){
+                    Log.d("responseCode", String.valueOf(response.code()));
+                    return;
+                }
+
+                try {
+                    showToast(response.body().string()+" "+updatedDto.getCiName(),getApplicationContext());
+
+                    getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,new CreatorDashboardFragment())
+                            .addToBackStack(null).commit();
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Log.d("failed",t.getMessage());
+            }
+        });
+    }
+
+    @Override
+    public void passNewData(ItemDTO itemDto, MultipartBody imgFile) {
+        craftItemApis=ApiClient.getClient().create(CraftItemApis.class);
+
+        Map<String,String> headers=new HashMap<>();
+        headers.put("Authorization","Bearer "+ SaveSharedPreferenceInstance.getAuthToken(this));
+        headers.put("content-type", "multipart/form-data; boundary="+imgFile.boundary());
+
+        Call<ResponseBody> call=craftItemApis.addItem(headers,imgFile,
+                itemDto.getCiName(),itemDto.getCiPrice(),itemDto.getItemQuantity(),itemDto.getShortDescription(),
+                itemDto.getLongDescription(),itemDto.getType(),itemDto.getCategory(),itemDto.getAvailabilityStatus());
+
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if(!response.isSuccessful()){
+                    Log.d("responseCode", String.valueOf(response.code()));
+                    return;
+                }
+
+                try {
+                    showToast(itemDto.getCiName()+" "+response.body().string(),getApplicationContext());
+
+                    getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,new CreatorDashboardFragment())
+                            .addToBackStack(null).commit();
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Log.d("failed",t.getMessage());
+            }
+        });
     }
 }

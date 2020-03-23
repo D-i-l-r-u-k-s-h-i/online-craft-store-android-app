@@ -36,7 +36,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 
-public class CraftItems_RecyclerViewAdapter extends RecyclerView.Adapter<CraftItems_RecyclerViewAdapter.ViewHolder>/* implements BuyItemDialog.BuyItemDialogListener*/{
+public class CraftItems_RecyclerViewAdapter extends RecyclerView.Adapter<CraftItems_RecyclerViewAdapter.ViewHolder>{
 
     private List<ItemDTO> mData;
     private LayoutInflater mInflater;

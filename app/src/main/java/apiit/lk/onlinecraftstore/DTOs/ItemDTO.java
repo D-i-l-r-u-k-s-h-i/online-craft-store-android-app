@@ -1,9 +1,12 @@
 package apiit.lk.onlinecraftstore.DTOs;
 
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.io.Serializable;
 
-public class ItemDTO implements Serializable {
+public class ItemDTO implements Serializable,Parcelable {
 
     private Long craftId;
 
@@ -32,21 +35,6 @@ public class ItemDTO implements Serializable {
     private Integer noOfPages;
 
     public ItemDTO() {
-    }
-
-    public ItemDTO(Long craftId, String ciName, Boolean availabilityStatus, Double ciPrice, String imgFile, Integer itemQuantity, String shortDescription, String longDescription, String category, String type, CraftCreator creator, Integer noOfPages) {
-        this.craftId = craftId;
-        this.ciName = ciName;
-        this.availabilityStatus = availabilityStatus;
-        this.ciPrice = ciPrice;
-        this.imgFile = imgFile;
-        this.itemQuantity = itemQuantity;
-        this.shortDescription = shortDescription;
-        this.longDescription = longDescription;
-        this.category = category;
-        this.type = type;
-        this.creator = creator;
-        this.noOfPages = noOfPages;
     }
 
     public Long getCraftId() {
@@ -143,5 +131,15 @@ public class ItemDTO implements Serializable {
 
     public void setNoOfPages(Integer noOfPages) {
         this.noOfPages = noOfPages;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+
     }
 }

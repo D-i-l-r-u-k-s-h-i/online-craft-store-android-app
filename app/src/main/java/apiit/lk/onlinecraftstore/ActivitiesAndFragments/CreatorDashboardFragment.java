@@ -1,6 +1,7 @@
 package apiit.lk.onlinecraftstore.ActivitiesAndFragments;
 
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -11,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -22,13 +24,19 @@ import java.util.Map;
 import apiit.lk.onlinecraftstore.Adapters.CraftItems_Creator_RecyclerViewAdapter;
 import apiit.lk.onlinecraftstore.Adapters.CraftItems_RecyclerViewAdapter;
 import apiit.lk.onlinecraftstore.Adapters.ShowReviews_RecyclerViewAdapter;
+import apiit.lk.onlinecraftstore.DTOs.CreatorCraftOrderDTO;
 import apiit.lk.onlinecraftstore.DTOs.ItemDTO;
+import apiit.lk.onlinecraftstore.DTOs.NotificationsDTO;
 import apiit.lk.onlinecraftstore.DTOs.ReviewDTO;
 import apiit.lk.onlinecraftstore.JsonPlaceholderAPIs.CraftItemApis;
+import apiit.lk.onlinecraftstore.JsonPlaceholderAPIs.NotificationApis;
 import apiit.lk.onlinecraftstore.JsonPlaceholderAPIs.RatingsReviewsApis;
 import apiit.lk.onlinecraftstore.R;
+import apiit.lk.onlinecraftstore.SupportClasses.AddCraftDialog;
 import apiit.lk.onlinecraftstore.SupportClasses.ApiClient;
 import apiit.lk.onlinecraftstore.SupportClasses.SaveSharedPreferenceInstance;
+import apiit.lk.onlinecraftstore.SupportClasses.ViewNotificationsDialog;
+import apiit.lk.onlinecraftstore.SupportClasses.ViewOrdersDialog;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -37,12 +45,17 @@ public class CreatorDashboardFragment extends Fragment {
 
     private CraftItemApis craftItemApis;
     private RatingsReviewsApis ratingsReviewsApis;
+    private NotificationApis notificationApis;
 
     private LinearLayout linearLayoutBar;
     TextView ratings_tv;
     TextView reviewCount_tv;
     Button previous_btn;
     Button next_btn;
+
+    Button addCraftBtn;
+    Button ordersBtn;
+    ImageView notificationBtn;
 
     int counter=0;
     long creatorId=0;
@@ -64,6 +77,10 @@ public class CreatorDashboardFragment extends Fragment {
 
         previous_btn=rootView.findViewById(R.id.previousBtn);
         next_btn=rootView.findViewById(R.id.nextBtn);
+
+        addCraftBtn=rootView.findViewById(R.id.addCraftsBtn);
+        ordersBtn=rootView.findViewById(R.id.ordersBtn);
+        notificationBtn=rootView.findViewById(R.id.notificationsBtn);
 
         craftItemApis= ApiClient.getClient().create(CraftItemApis.class);
 
@@ -118,6 +135,53 @@ public class CreatorDashboardFragment extends Fragment {
                 else {
                     callApi(rootView,craftItemApis.getCraftItemsOfCreator(headers,creatorId,counter));
                 }
+            }
+        });
+
+        addCraftBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openAddCraftDialog();
+            }
+        });
+
+        ordersBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //call api and openDialog on response
+                Call<List<CreatorCraftOrderDTO>> callOrders=craftItemApis.getCraftOrdersForCreator(headers);
+
+                callOrders.enqueue(new Callback<List<CreatorCraftOrderDTO>>() {
+                    @Override
+                    public void onResponse(Call<List<CreatorCraftOrderDTO>> call, Response<List<CreatorCraftOrderDTO>> response) {
+                        openOrdersDialog(response.body());
+                    }
+
+                    @Override
+                    public void onFailure(Call<List<CreatorCraftOrderDTO>> call, Throwable t) {
+
+                    }
+                });
+            }
+        });
+
+        notificationBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                notificationApis=ApiClient.getClient().create(NotificationApis.class);
+                Call<List<NotificationsDTO>> callNotifications=notificationApis.getNotifications(headers);
+
+                callNotifications.enqueue(new Callback<List<NotificationsDTO>>() {
+                    @Override
+                    public void onResponse(Call<List<NotificationsDTO>> call, Response<List<NotificationsDTO>> response) {
+                        openNotificationsDialog(response.body());
+                    }
+
+                    @Override
+                    public void onFailure(Call<List<NotificationsDTO>> call, Throwable t) {
+
+                    }
+                });
             }
         });
 
@@ -189,6 +253,7 @@ public class CreatorDashboardFragment extends Fragment {
                 creatorCraftItemsAdapter = new CraftItems_Creator_RecyclerViewAdapter(getActivity(),crafts);
 //        adapter.setClickListener(this);
                 recyclerView.setAdapter(creatorCraftItemsAdapter);
+                creatorCraftItemsAdapter.notifyDataSetChanged();
 
             }
 
@@ -197,5 +262,33 @@ public class CreatorDashboardFragment extends Fragment {
                 Log.d("failed",t.getMessage());
             }
         });
+    }
+
+    public void openAddCraftDialog(){
+        AddCraftDialog addCraftDialog=new AddCraftDialog();
+
+        addCraftDialog.show(getActivity().getSupportFragmentManager(),"add item dialog");
+    }
+
+    public void openOrdersDialog(List<CreatorCraftOrderDTO> dtoList){
+        ViewOrdersDialog viewOrdersDialog=new ViewOrdersDialog();
+
+        Bundle bundle=new Bundle();
+
+        bundle.putParcelableArrayList("dtoList", (ArrayList<? extends Parcelable>) dtoList);
+
+        viewOrdersDialog.setArguments(bundle);
+        viewOrdersDialog.show(getActivity().getSupportFragmentManager(),"orders item dialog");
+    }
+
+    public void openNotificationsDialog(List<NotificationsDTO> dtoList){
+        ViewNotificationsDialog notificationsDialog=new ViewNotificationsDialog();
+
+        Bundle bundle=new Bundle();
+
+        bundle.putParcelableArrayList("notification_dtos", (ArrayList<? extends Parcelable>) dtoList);
+
+        notificationsDialog.setArguments(bundle);
+        notificationsDialog.show(getActivity().getSupportFragmentManager(),"Notifications dialog");
     }
 }

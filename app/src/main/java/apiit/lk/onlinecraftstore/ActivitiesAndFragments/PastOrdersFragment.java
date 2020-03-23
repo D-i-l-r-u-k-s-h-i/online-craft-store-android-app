@@ -8,6 +8,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
 import java.util.ArrayList;
 
@@ -21,6 +22,7 @@ public class PastOrdersFragment extends Fragment {
     AllOrders_RecyclerViewAdapter allOrders_recyclerViewAdapter;
     CraftsPurchased_RecyclerViewAdapter craftsPurchased_recyclerViewAdapter;
     CraftCreatorsPurchasedFrom_RecyclerViewAdapter craftCreatorsPurchasedFrom_recyclerViewAdapter;
+
 
     //samples
     String[] data={"test Data","Change later"};

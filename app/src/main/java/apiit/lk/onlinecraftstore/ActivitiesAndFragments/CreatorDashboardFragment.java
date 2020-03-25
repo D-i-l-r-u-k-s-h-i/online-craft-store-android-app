@@ -154,6 +154,11 @@ public class CreatorDashboardFragment extends Fragment {
                 callOrders.enqueue(new Callback<List<CreatorCraftOrderDTO>>() {
                     @Override
                     public void onResponse(Call<List<CreatorCraftOrderDTO>> call, Response<List<CreatorCraftOrderDTO>> response) {
+                        if(!response.isSuccessful()){
+                            Log.d("responseCode", String.valueOf(response.code()));
+                            return;
+                        }
+
                         openOrdersDialog(response.body());
                     }
 
@@ -174,6 +179,11 @@ public class CreatorDashboardFragment extends Fragment {
                 callNotifications.enqueue(new Callback<List<NotificationsDTO>>() {
                     @Override
                     public void onResponse(Call<List<NotificationsDTO>> call, Response<List<NotificationsDTO>> response) {
+                        if(!response.isSuccessful()){
+                            Log.d("responseCode", String.valueOf(response.code()));
+                            return;
+                        }
+
                         openNotificationsDialog(response.body());
                     }
 

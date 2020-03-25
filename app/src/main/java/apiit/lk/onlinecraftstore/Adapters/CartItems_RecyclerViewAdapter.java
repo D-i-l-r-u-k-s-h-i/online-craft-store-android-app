@@ -1,42 +1,56 @@
 package apiit.lk.onlinecraftstore.Adapters;
 
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Base64;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.NumberPicker;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
+import apiit.lk.onlinecraftstore.DTOs.OrderDTO;
+import apiit.lk.onlinecraftstore.JsonPlaceholderAPIs.OrderApis;
 import apiit.lk.onlinecraftstore.R;
+import apiit.lk.onlinecraftstore.SupportClasses.ApiClient;
+import apiit.lk.onlinecraftstore.SupportClasses.SaveSharedPreferenceInstance;
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class CartItems_RecyclerViewAdapter extends RecyclerView.Adapter<CartItems_RecyclerViewAdapter.ViewHolder>{
 
-private ArrayList<String> names;
-private ArrayList<String> descriptiolnss;
-private ArrayList<String> prices;
-private ArrayList<String> images;
+    private List<OrderDTO> mData;
+    private OrderApis orderApis;
 
-private Context mContext;
+    private Context mContext;
 
-public CartItems_RecyclerViewAdapter(ArrayList<String> names, ArrayList<String> descriptiolnss,
-        ArrayList<String> prices, ArrayList<String> images, Context mContext) {
-        this.names = names;
-        this.descriptiolnss = descriptiolnss;
-        this.prices = prices;
-        this.images = images;
+    public CartItems_RecyclerViewAdapter(List<OrderDTO> orderData, Context mContext) {
+        this.mData=orderData;
         this.mContext = mContext;
-        }
+    }
 
 public class ViewHolder extends RecyclerView.ViewHolder{
 
     ImageView productImage;
     TextView name_tv;
+    TextView availability_tv;
     TextView description_tv;
     TextView price_tv;
     ConstraintLayout parent_layout;
@@ -52,6 +66,7 @@ public class ViewHolder extends RecyclerView.ViewHolder{
         price_tv=itemView.findViewById(R.id.priceTV2);
         removeItem_iv=itemView.findViewById(R.id.removeItemIV);
         quantityNP=itemView.findViewById(R.id.numberPicker);
+        availability_tv=itemView.findViewById(R.id.availabilityCartTV);
 
         parent_layout=itemView.findViewById(R.id.parentLayoutCart);
 
@@ -70,54 +85,114 @@ public class ViewHolder extends RecyclerView.ViewHolder{
     @Override
     public void onBindViewHolder(@NonNull final CartItems_RecyclerViewAdapter.ViewHolder viewHolder,
                                  final int position) {
-        viewHolder.name_tv.setText(names.get(position));
-        viewHolder.description_tv.setText(descriptiolnss.get(position));
-        viewHolder.price_tv.setText(prices.get(position));
-        //load the image using picaso here.
-//        Picasso.get().load(images.get(position)).into(viewHolder.productImage);
+        viewHolder.name_tv.setText(mData.get(position).getCraftItem().getCiName());
+        viewHolder.description_tv.setText(mData.get(position).getCraftItem().getShortDescription());
+        viewHolder.price_tv.setText(String.valueOf(mData.get(position).getCraftItem().getCiPrice()));
+        viewHolder.availability_tv.setText(mData.get(position).getCraftItem().isAvailabilityStatus()?"Available":"Not Available");
 
+        byte[] decodedString = Base64.decode(mData.get(position).getCraftItem().getImgFile() , Base64.DEFAULT);
+        Bitmap decodedByte= BitmapFactory.decodeByteArray(decodedString,0,decodedString.length);
+
+        viewHolder.productImage.setImageBitmap(decodedByte);
+
+        viewHolder.quantityNP.setMinValue(1);
+        viewHolder.quantityNP.setMaxValue(mData.get(position).getCraftItem().getItemQuantity());
+        viewHolder.quantityNP.setValue(mData.get(position).getQuantity());
+
+        viewHolder.quantityNP.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
+            @Override
+            public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
+                //api on quantity change
+                orderApis= ApiClient.getClient().create(OrderApis.class);
+
+                OrderDTO quantityUpdatedDTO=mData.get(position);
+                quantityUpdatedDTO.setQuantity(newVal);
+                quantityUpdatedDTO.setCraftId(mData.get(position).getCraftItem().getCraftId());
+
+                Map<String,String> headers=new HashMap<>();
+                headers.put("Authorization","Bearer "+ SaveSharedPreferenceInstance.getAuthToken(mContext));
+                headers.put("content-type", "application/json");
+
+                Call<ResponseBody> call=orderApis.changeQuantity(headers,quantityUpdatedDTO);
+
+                call.enqueue(new Callback<ResponseBody>() {
+                    @Override
+                    public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                        if(!response.isSuccessful()){
+                            Log.d("responseCode", String.valueOf(response.code()));
+                            return;
+                        }
+
+                        try {
+                            showToast(mData.get(position).getCraftItem().getCiName()+" Item "+response.body().string()+" to "+newVal,mContext);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+
+                    @Override
+                    public void onFailure(Call<ResponseBody> call, Throwable t) {
+                        Log.d("failed",t.getMessage());
+                    }
+                });
+
+            }
+        });
 
         //on click of the remove icon in the recyclerview item,
         viewHolder.removeItem_iv.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //product order will be detleted from the database
-//                pOrder.delete();
-//                //Also remove the data on arraylist regarding the product order, so that it would be
-//                //added as a recycler view item.
-//                try {
-//                    names.remove(position);
-//                    descriptiolnss.remove(position);
-//                    prices.remove(position);
-//                    images.remove(position);
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                }
-//                //notify that an item got changed.
-//                notifyItemRemoved(position);
-//                new CartFragment().showToast("Swipe down to Refresh.",mContext);
+                orderApis= ApiClient.getClient().create(OrderApis.class);
+
+                Map<String,String> headers=new HashMap<>();
+                headers.put("Authorization","Bearer "+ SaveSharedPreferenceInstance.getAuthToken(mContext));
+                headers.put("content-type", "application/json");
+
+                Call<ResponseBody> call=orderApis.removeFromCart(headers,mData.get(position).getCraftItem().getCraftId());
+
+                call.enqueue(new Callback<ResponseBody>() {
+                    @Override
+                    public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                        if(!response.isSuccessful()){
+                            Log.d("responseCode", String.valueOf(response.code()));
+                            return;
+                        }
+
+                        try {
+                            showToast(mData.get(position).getCraftItem().getCiName()+" "+response.body().string(),mContext);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+                        Intent intent = new Intent("custom-message");
+                        intent.putExtra("price",mData.get(position).getCraftItem().getCiPrice()*mData.get(position).getQuantity());
+                        LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
+
+                        mData.remove(position);
+
+                        notifyItemRemoved(position);
+                    }
+
+                    @Override
+                    public void onFailure(Call<ResponseBody> call, Throwable t) {
+                        Log.d("failed",t.getMessage());
+                    }
+                });
+
             }
         });
 
-//        viewHolder.quantityNP.setMinValue(1);
-        //later set the max value to the quantity of products available
-//        viewHolder.quantityNP.setMaxValue(product.getProd_quantity());
-        //viewHolder.quantityNP.setWrapSelectorWheel(false); //to make it non recurring
-//        viewHolder.quantityNP.setValue(Integer.parseInt(pOrder.getQuantity()));
 
-//        viewHolder.quantityNP.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
-//            @Override
-//            public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
-//                //save the new quantity picked by the user, in the database.
-//                pOrder.setQuantity(String.valueOf(newVal));
-//                pOrder.save();
-//                //The page should be refreshed.
-//                new CartFragment().showToast("Swipe down to Refresh.",mContext);
-//            }
-//        });
     }
     @Override
     public int getItemCount() {
-        return names.size();
+        return mData.size();
+    }
+
+    public void showToast(String message,Context context){
+        Toast.makeText(context, message,Toast.LENGTH_LONG).show();
     }
 }

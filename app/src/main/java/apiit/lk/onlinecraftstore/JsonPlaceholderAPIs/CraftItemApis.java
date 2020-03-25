@@ -56,4 +56,7 @@ public interface CraftItemApis {
 
     @GET("craft/craftorders")
     Call<List<CreatorCraftOrderDTO>> getCraftOrdersForCreator(@HeaderMap Map<String,String> headers);
+
+    @POST("craft/deliver/{id}")
+    Call<ResponseBody> deleverItem(@HeaderMap Map<String,String> headers, @Path("id") long id);
 }

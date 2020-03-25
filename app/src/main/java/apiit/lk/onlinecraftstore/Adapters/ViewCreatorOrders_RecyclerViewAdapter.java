@@ -3,6 +3,7 @@ package apiit.lk.onlinecraftstore.Adapters;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,16 +12,28 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import apiit.lk.onlinecraftstore.DTOs.CreatorCraftOrderDTO;
+import apiit.lk.onlinecraftstore.JsonPlaceholderAPIs.CraftItemApis;
 import apiit.lk.onlinecraftstore.R;
+import apiit.lk.onlinecraftstore.SupportClasses.ApiClient;
+import apiit.lk.onlinecraftstore.SupportClasses.SaveSharedPreferenceInstance;
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class ViewCreatorOrders_RecyclerViewAdapter extends RecyclerView.Adapter<ViewCreatorOrders_RecyclerViewAdapter.ViewHolder>{
     private List<CreatorCraftOrderDTO> mData;
     private LayoutInflater mInflater;
     private CraftItems_RecyclerViewAdapter.ItemClickListener mClickListener;
     private final Context mContext;
+
+    CraftItemApis craftItemApis;
 
     public ViewCreatorOrders_RecyclerViewAdapter(Context context, List<CreatorCraftOrderDTO> data) {
         this.mContext=context;
@@ -41,6 +54,46 @@ public class ViewCreatorOrders_RecyclerViewAdapter extends RecyclerView.Adapter<
         holder.orderItems_tv.setText(mData.get(position).getCraftName()+"*"+mData.get(position).getQuantity());
         holder.customerName_tv.setText(mData.get(position).getUsername());
 
+        holder.delevered_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //call api to change delevery status
+                craftItemApis= ApiClient.getClient().create(CraftItemApis.class);
+
+                Map<String,String> headers=new HashMap<>();
+                headers.put("Authorization","Bearer "+ SaveSharedPreferenceInstance.getAuthToken(mContext));
+                headers.put("content-type", "application/json");
+
+                Call<ResponseBody> call=craftItemApis.deleverItem(headers,mData.get(position).getOrderCraftItemId());
+
+                call.enqueue(new Callback<ResponseBody>() {
+                    @Override
+                    public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                        if(!response.isSuccessful()){
+                            Log.d("responseCode", String.valueOf(response.code()));
+                            return;
+                        }
+
+                        try {
+                            showToast(response.body().string(),mContext);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+                        mData.remove(position);
+
+                        notifyItemRemoved(position);
+                    }
+
+                    @Override
+                    public void onFailure(Call<ResponseBody> call, Throwable t) {
+                        Log.d("failed",t.getMessage());
+                    }
+                });
+
+            }
+        });
+
     }
 
     @Override
@@ -48,18 +101,23 @@ public class ViewCreatorOrders_RecyclerViewAdapter extends RecyclerView.Adapter<
         return mData.size();
     } // total number of cells
 
+    public void showToast(String message,Context context){
+        Toast.makeText(context, message,Toast.LENGTH_LONG).show();
+    }
+
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         TextView purchaseDate_tv;
         TextView orderItems_tv;
         TextView customerName_tv;
-
+        Button delevered_btn;
 
         ViewHolder(View itemView) {
             super(itemView);
             purchaseDate_tv = itemView.findViewById(R.id.purchaseDateTV);
             orderItems_tv=itemView.findViewById(R.id.orderItemsTV);
             customerName_tv = itemView.findViewById(R.id.customerTV);
+            delevered_btn=itemView.findViewById(R.id.deliverBtn);
 
             itemView.setOnClickListener(this);
         }

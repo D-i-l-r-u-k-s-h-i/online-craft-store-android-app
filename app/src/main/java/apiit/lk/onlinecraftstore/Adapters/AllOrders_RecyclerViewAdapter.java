@@ -11,15 +11,22 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import apiit.lk.onlinecraftstore.DTOs.OrderCraftItem;
+import apiit.lk.onlinecraftstore.DTOs.UserOrdersDTO;
 import apiit.lk.onlinecraftstore.R;
 
 public class AllOrders_RecyclerViewAdapter extends RecyclerView.Adapter<AllOrders_RecyclerViewAdapter.ViewHolder>{
     private LayoutInflater mInflater;
-    private String[] mData;
+    private List<UserOrdersDTO> mData;
+    private Context mContext;
 
-    public AllOrders_RecyclerViewAdapter(Context context,String[] data) {
+    public AllOrders_RecyclerViewAdapter(Context context,List<UserOrdersDTO> data) {
         this.mInflater = LayoutInflater.from(context);
         this.mData = data;
+        this.mContext=context;
     }
 
     @NonNull
@@ -30,13 +37,26 @@ public class AllOrders_RecyclerViewAdapter extends RecyclerView.Adapter<AllOrder
     }
 
     @Override
-    public void onBindViewHolder(@NonNull AllOrders_RecyclerViewAdapter.ViewHolder holder, int i) {
-        holder.purchaseDate_tv.setText(mData[i]);
+    public void onBindViewHolder(@NonNull AllOrders_RecyclerViewAdapter.ViewHolder holder, int position) {
+
+        holder.purchaseDate_tv.setText(mData.get(position).getPurchaseDate());
+        holder.orderStatus_tv.setText(mData.get(position).getOrderStatus());
+        holder.orderTotal_tv.setText("Total: Rs."+String.valueOf(mData.get(position).getOrderTotal()));
+
+        //for now hardcoding the listview
+        List<String> orders=new ArrayList<>();
+        for (OrderCraftItem ci:mData.get(position).getOrderItemsList()) {
+            orders.add(ci.getCraftItem().getCiName()+"  "+ci.getQuantity()+"*"+ci.getCraftItem().getCiPrice()+"   "+ci.getStatus());
+        }
+
+        ArrayAdapter<String> adapter=new ArrayAdapter<String>(mContext,android.R.layout.simple_list_item_1,orders);
+        holder.orderItems_lv.setAdapter(adapter);
+
     }
 
     @Override
     public int getItemCount() {
-        return mData.length;
+        return mData.size();
     }
 
     // stores and recycles views as they are scrolled off screen
@@ -54,11 +74,6 @@ public class AllOrders_RecyclerViewAdapter extends RecyclerView.Adapter<AllOrder
             orderStatus_tv = itemView.findViewById(R.id.orderStatusTV);
             orderItems_lv = itemView.findViewById(R.id.craftsOrderedLV);
 
-            //for now hardcoding the listview
-            String[] orders={"something1", "something2", "something3"};
-
-            ArrayAdapter<String> adapter=new ArrayAdapter<String>(itemView.getContext(),android.R.layout.simple_list_item_1,orders);
-            orderItems_lv.setAdapter(adapter);
 
             itemView.setOnClickListener(this);
         }

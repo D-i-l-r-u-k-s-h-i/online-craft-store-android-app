@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 import apiit.lk.onlinecraftstore.ActivitiesAndFragments.HomeActivity;
+import apiit.lk.onlinecraftstore.DTOs.AlertMessageDTO;
 import apiit.lk.onlinecraftstore.DTOs.ItemDTO;
 import apiit.lk.onlinecraftstore.JsonPlaceholderAPIs.CraftItemApis;
 import apiit.lk.onlinecraftstore.JsonPlaceholderAPIs.OrderApis;
@@ -154,25 +155,27 @@ public class CraftItems_Creator_RecyclerViewAdapter extends RecyclerView.Adapter
                         headers.put("Authorization","Bearer "+ SaveSharedPreferenceInstance.getAuthToken(mContext));
                         headers.put("content-type", "application/json");
 
-                        Call<ResponseBody> call=craftItemApis.deleteItem(headers,mData.get(position).getCraftId());
+                        Call<AlertMessageDTO> call=craftItemApis.deleteItem(headers,mData.get(position).getCraftId());
 
-                        call.enqueue(new Callback<ResponseBody>() {
+                        call.enqueue(new Callback<AlertMessageDTO>() {
                             @Override
-                            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                            public void onResponse(Call<AlertMessageDTO> call, Response<AlertMessageDTO> response) {
                                 if(!response.isSuccessful()){
                                     Log.d("responseCode", String.valueOf(response.code()));
                                     return;
                                 }
 
-                                try {
-                                    showToast(mData.get(position).getCiName()+" "+response.body().string(),mContext);
-                                } catch (IOException e) {
-                                    e.printStackTrace();
+                                showToast(mData.get(position).getCiName()+"- "+response.body().getMessage(),mContext);
+
+                                if(response.body().getStatus().equals("DELETE")){
+                                    mData.remove(position);
+                                    notifyItemRemoved(position);
                                 }
+
                             }
 
                             @Override
-                            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                            public void onFailure(Call<AlertMessageDTO> call, Throwable t) {
                                 Log.d("failed",t.getMessage());
                             }
                         });

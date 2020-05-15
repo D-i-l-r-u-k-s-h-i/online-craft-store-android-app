@@ -5,6 +5,7 @@ import android.support.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 
+import apiit.lk.onlinecraftstore.DTOs.AlertMessageDTO;
 import apiit.lk.onlinecraftstore.DTOs.CreatorCraftOrderDTO;
 import apiit.lk.onlinecraftstore.DTOs.ItemDTO;
 import okhttp3.MultipartBody;
@@ -38,7 +39,7 @@ public interface CraftItemApis {
     Call<List<ItemDTO>> getCraftItemsOfCreator(@HeaderMap Map<String,String> headers,@Path("id") long id,@Path("page") int page);
 
     @POST("craft/delete/{id}")
-    Call<ResponseBody> deleteItem(@HeaderMap Map<String,String> headers, @Path("id") long id);
+    Call<AlertMessageDTO> deleteItem(@HeaderMap Map<String,String> headers, @Path("id") long id);
 
     @Multipart
     @POST("craft/update")

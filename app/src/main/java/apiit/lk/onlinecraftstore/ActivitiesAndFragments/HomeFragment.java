@@ -1,11 +1,18 @@
 package apiit.lk.onlinecraftstore.ActivitiesAndFragments;
 
+import android.app.SearchManager;
+import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -44,10 +51,12 @@ public class HomeFragment extends Fragment {
     private ProgressBar progressBar;
 
     CraftItems_RecyclerViewAdapter adapter;
+    private SearchView searchView = null;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
         // Inflate the layout for this fragment
         View rootView=inflater.inflate(R.layout.fragment_home, container, false);
 
@@ -142,8 +151,7 @@ public class HomeFragment extends Fragment {
         return rootView;
     }
 
-//implement setClickListener if clicking on item
-
+    //implement setClickListener if clicking on item
 
     //common method to call apis
     public void callApi(View rootView,Call<List<ItemDTO>> call){

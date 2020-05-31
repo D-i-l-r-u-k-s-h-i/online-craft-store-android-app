@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -57,6 +58,8 @@ public class CreatorDashboardFragment extends Fragment {
     Button ordersBtn;
     ImageView notificationBtn;
 
+    private ProgressBar progressBar;
+
     int counter=0;
     long creatorId=0;
     double rating=0;
@@ -81,6 +84,9 @@ public class CreatorDashboardFragment extends Fragment {
         addCraftBtn=rootView.findViewById(R.id.addCraftsBtn);
         ordersBtn=rootView.findViewById(R.id.ordersBtn);
         notificationBtn=rootView.findViewById(R.id.notificationsBtn);
+
+        this.progressBar=rootView.findViewById(R.id.progressBar2);
+        progressBar.setVisibility(View.VISIBLE);
 
         craftItemApis= ApiClient.getClient().create(CraftItemApis.class);
 
@@ -243,7 +249,7 @@ public class CreatorDashboardFragment extends Fragment {
                     Log.d("responseCode", String.valueOf(response.code()));
                     return;
                 }
-
+                progressBar.setVisibility(View.INVISIBLE);
                 List<ItemDTO> crafts=response.body();
 
                 rating=crafts.get(0).getCreator().getOverallRating();

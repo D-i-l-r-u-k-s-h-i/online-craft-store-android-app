@@ -1,6 +1,7 @@
 package apiit.lk.onlinecraftstore.Adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -196,6 +197,30 @@ public class CraftItems_Creator_RecyclerViewAdapter extends RecyclerView.Adapter
 
             }
         });
+
+        holder.share_icon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent=new Intent(Intent.ACTION_SEND);
+                intent.setType("text/plain");
+
+                //sharing the name of the product and the url of the picture here
+                String shareString_name=mData.get(position).getCiName();
+                String shareString_longdesc=mData.get(position).getLongDescription();
+                String shareString_shortdesc=mData.get(position).getShortDescription();
+
+                String shareString_price=mData.get(position).getCiPrice().toString();
+
+
+                //parsing the content to the app using putExtra
+                intent.putExtra(Intent.EXTRA_SUBJECT,"Check this out from the Craft Store\uD83C\uDF40");
+                intent.putExtra(Intent.EXTRA_TEXT,"Check this out from the Craft Store\uD83C\uDF40 \n"+shareString_name + "\n" +shareString_shortdesc+" ,"+shareString_longdesc+"\nRs."+" "+shareString_price);
+
+//                intent.putExtra(Intent.EXTRA_STREAM, "data:image/png;base64,"+mData.get(position).getImgFile());
+
+                mContext.startActivity(Intent.createChooser(intent,"Share using"));
+            }
+        });
     }
 
     @Override
@@ -221,6 +246,7 @@ public class CraftItems_Creator_RecyclerViewAdapter extends RecyclerView.Adapter
         ImageView edit_iv;
         ImageView delete_iv;
         Button buy_btn;
+        ImageView share_icon;
 
         ViewHolder(View itemView) {
             super(itemView);
@@ -236,6 +262,8 @@ public class CraftItems_Creator_RecyclerViewAdapter extends RecyclerView.Adapter
             edit_iv=itemView.findViewById(R.id.editBtn);
             delete_iv=itemView.findViewById(R.id.deleteBtn);
             buy_btn=itemView.findViewById(R.id.buyBtn);
+
+            share_icon=itemView.findViewById(R.id.shareIcon);
 
             itemView.setOnClickListener(this);
         }

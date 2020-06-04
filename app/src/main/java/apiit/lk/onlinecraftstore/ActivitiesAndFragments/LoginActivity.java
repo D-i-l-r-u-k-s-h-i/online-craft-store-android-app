@@ -1,5 +1,6 @@
 package apiit.lk.onlinecraftstore.ActivitiesAndFragments;
 
+import android.content.Context;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -63,38 +64,42 @@ public class LoginActivity extends AppCompatActivity {
                     Log.d("responseCode", String.valueOf(response.code()));
                 }
 
-                JwtAuthenticationResponse loginResponse=response.body();
-
-                Log.d("accessToken", loginResponse.getAccessToken());
-                String accessToken=loginResponse.getAccessToken();
-
-                try {
-                    String decoded = DecodeToken.decoded(accessToken);
-                    Log.d("decoded",decoded);
-
-                    JSONObject jsonObject=new JSONObject(decoded);
-                    Log.d("jsondecoded", String.valueOf(jsonObject));
-
-                    String user=jsonObject.getString("username");
-
-                    JSONObject roleObj=jsonObject.getJSONObject("role");
-                    String role=roleObj.getString("roleName");
-
-                    String userId=jsonObject.getString("userId");
-
-                    SaveSharedPreferenceInstance.setUsername(getApplicationContext(),user);
-                    SaveSharedPreferenceInstance.setRole(getApplicationContext(),role);
-                    SaveSharedPreferenceInstance.setUserId(getApplicationContext(), userId);
-                    SaveSharedPreferenceInstance.setAuthToken(getApplicationContext(),accessToken);
-
-                    startActivity(new Intent(LoginActivity.this,HomeActivity.class));
-                    finish();
-
-
-                } catch (Exception e) {
-                    e.printStackTrace();
+                if(response.code()==401){
+                    showToast("Bad Credentials. Please try logging in with correct username and password",getApplicationContext());
                 }
+                else{
+                    JwtAuthenticationResponse loginResponse=response.body();
 
+                    Log.d("accessToken", loginResponse.getAccessToken());
+                    String accessToken=loginResponse.getAccessToken();
+
+                    try {
+                        String decoded = DecodeToken.decoded(accessToken);
+                        Log.d("decoded",decoded);
+
+                        JSONObject jsonObject=new JSONObject(decoded);
+                        Log.d("jsondecoded", String.valueOf(jsonObject));
+
+                        String user=jsonObject.getString("username");
+
+                        JSONObject roleObj=jsonObject.getJSONObject("role");
+                        String role=roleObj.getString("roleName");
+
+                        String userId=jsonObject.getString("userId");
+
+                        SaveSharedPreferenceInstance.setUsername(getApplicationContext(),user);
+                        SaveSharedPreferenceInstance.setRole(getApplicationContext(),role);
+                        SaveSharedPreferenceInstance.setUserId(getApplicationContext(), userId);
+                        SaveSharedPreferenceInstance.setAuthToken(getApplicationContext(),accessToken);
+
+                        startActivity(new Intent(LoginActivity.this,HomeActivity.class));
+                        finish();
+
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
             }
 
             @Override
@@ -103,5 +108,8 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
+    }
+    public void showToast(String message,Context context){
+        Toast.makeText(context, message,Toast.LENGTH_LONG).show();
     }
 }

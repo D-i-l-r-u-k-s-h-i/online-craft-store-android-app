@@ -74,7 +74,7 @@ public class CartFragment extends Fragment {
 
                 List<OrderDTO> orderDTOList=response.body();
 
-                noOfItems_tv.setText(orderDTOList.size()==1?orderDTOList.size()+ "item":orderDTOList.size()+ "items");
+                noOfItems_tv.setText(orderDTOList.size()==1?orderDTOList.size()+ " item":orderDTOList.size()+ " items");
 
                 //After retrieval and setting in the arraylists
                 RecyclerView rv=rootView.findViewById(R.id.cartRV);
@@ -145,6 +145,9 @@ public class CartFragment extends Fragment {
         LocalBroadcastManager.getInstance(getContext()).registerReceiver(mMessageReceiver,
                 new IntentFilter("custom-message"));
 
+        LocalBroadcastManager.getInstance(getContext()).registerReceiver(quantityMessageReceiver,
+                new IntentFilter("quantity-change-message"));
+
         return rootView;
     }
 
@@ -163,7 +166,26 @@ public class CartFragment extends Fragment {
             int currentItemsNo=Integer.valueOf(String.valueOf(noOfItems_tv.getText().charAt(0)));
 
             order_total.setText(String.valueOf(currentPrice-Double.valueOf(String.valueOf(price))));
-            noOfItems_tv.setText(String.valueOf(currentItemsNo-1));
+            noOfItems_tv.setText(currentItemsNo-1==1?String.valueOf(currentItemsNo-1) + " Item":String.valueOf(currentItemsNo-1) + " Items");
+        }
+    };
+
+    public BroadcastReceiver quantityMessageReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // Get extra data included in the Intent
+            double oldprice = intent.getDoubleExtra("oldprice",0);
+            double newprice = intent.getDoubleExtra("newprice",0);
+
+            double currentPrice=Double.valueOf(String.valueOf(order_total.getText()));
+
+            double reduced=currentPrice-oldprice;
+
+            double price=reduced+newprice;
+
+
+            order_total.setText(String.valueOf(price));
+
         }
     };
 

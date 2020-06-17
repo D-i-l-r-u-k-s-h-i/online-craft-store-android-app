@@ -105,6 +105,8 @@ public class ViewHolder extends RecyclerView.ViewHolder{
                 //api on quantity change
                 orderApis= ApiClient.getClient().create(OrderApis.class);
 
+                double oldValue=mData.get(position).getQuantity();
+
                 OrderDTO quantityUpdatedDTO=mData.get(position);
                 quantityUpdatedDTO.setQuantity(newVal);
                 quantityUpdatedDTO.setCraftId(mData.get(position).getCraftItem().getCraftId());
@@ -124,10 +126,15 @@ public class ViewHolder extends RecyclerView.ViewHolder{
                         }
 
                         try {
-                            showToast(mData.get(position).getCraftItem().getCiName()+" Item "+response.body().string()+" to "+newVal,mContext);
+                            showToast(mData.get(position).getCraftItem().getCiName()+" Item "+response.body().string()+" to "+picker.getValue(),mContext);
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
+
+                        Intent intent = new Intent("quantity-change-message");
+                        intent.putExtra("oldprice",mData.get(position).getCraftItem().getCiPrice()*oldValue);
+                        intent.putExtra("newprice",mData.get(position).getCraftItem().getCiPrice()*picker.getValue());
+                        LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
 
                     }
 
